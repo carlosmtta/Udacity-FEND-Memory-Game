@@ -1,3 +1,4 @@
+'use strict'
 /*
  * Create a list that holds all of your cards
  */
@@ -12,15 +13,28 @@
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 
-// Movimentos do jogador
+// Registra movimentos do jogador
 const moves = document.getElementsByClassName('moves');
+// Registra estrelas do jogador
 const stars = document.getElementsByClassName('stars');
-
+// Armazena tempo gasto pelo jogador do jogador
+var time = ""
+var timeFinish = "";
+var secondsFinish = ""; 
+// Registra movimentos do jogador
+var countMoves = 0; 
+var lastClick = null;
+// Registra a categoria do jogador
+var category = 3;
+// Marca início do jogo
+var startGame = true;
 // Reiniciar jogo
 const restart = document.getElementsByClassName('restart');
-
+// Armazena cartas do jogo
+const cartas = document.getElementsByClassName('card');
 //Array com as cartas do jogo
-var cards = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-leaf", "fa-bicycle", "fa-bomb", "fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-leaf", "fa-bicycle", "fa-bomb"];
+var initialSet = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-leaf", "fa-bicycle", "fa-bomb"];
+var cards = [...initialSet, ...initialSet]
 var openedCards = [];
 
 // Controla os cliques nas cartas
@@ -43,13 +57,15 @@ function shuffle(array) {
 
 // Embaralha cartas e as adiciona ao html
 function init() {
-    cards = shuffle(cards)
+    cards = shuffle(cards);
+    countMoves = 0;
+    stars[0].innerHTML += '<li><i class="fa fa-star"></i></li><li><i class="fa fa-star"></i></li><li><i class="fa fa-star"></i></li>';
     for (var i = 0; i < cartas.length; i++) {
         cartas[i].firstElementChild.className = "fa " + cards[i];
     }
+    time = Date.now();
+    openedCards = [];
 }
-
-
 
 // Função que adiciona carta aberta no jogo em um array
 function addCard(card) {
@@ -64,11 +80,12 @@ function addCard(card) {
             addMove();
             finish = checkFinish();
             if (finish) {
+                timeFinish = Date.now();
+                secondsFinish = String(parseInt((parseInt(timeFinish) - parseInt(time))/1000)); 
                 setTimeout(function() {
-                alert("Parabéns, você concluíu o jogo em " + moves[0].innerHTML + " jogadas.")
+                alert("Parabéns, você concluíu o jogo em " + moves[0].innerHTML + " jogadas. Você conquistou a categoria " + category + " estrela(s) em " + secondsFinish + " segundos.");
             }, 1000)
             }
-            openedCards = [];
         } else {
             openedCards.push(card);
             holdCards = true;
@@ -133,8 +150,15 @@ function checkMatch(card) {
 // Incrementa os movimentos do jogador
 
 function addMove() {
-    stars[0].innerHTML += '<li><i class="fa fa-star"></i></li>';
+    countMoves = ++countMoves;
     moves[0].innerHTML = parseInt(moves[0].innerHTML) + 1;
+    if (countMoves == 17) {
+        stars[0].removeChild(stars[0].lastChild)
+        category = 1;
+    } else if (countMoves == 13) {
+        stars[0].removeChild(stars[0].lastChild)
+        category = 2;
+    }
 }
 
 // Exibe ou esconde card
@@ -153,12 +177,14 @@ function showSymbol(card) {
     }
 }
 
-// armazena cards e adiciona um gerenciador de eventos a cada card
-const cartas = document.getElementsByClassName('card');
+// adiciona um gerenciador de eventos a cada card
 for (let i = 0; i < cartas.length; i++) {
 cartas[i].addEventListener("click", function() {
     if (cartas[i].firstElementChild.className.indexOf("lock") == -1 && !holdCards) {
-        showSymbol(cartas[i]);
+        if (i !== lastClick) {
+            showSymbol(cartas[i]);
+            lastClick = i;
+        };
     }
 });
 }
