@@ -102,3 +102,7 @@ h1 {
     float: right;
     cursor: pointer;
 }
+
+.time {
+    display: inline-block;
+}

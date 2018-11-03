@@ -1,17 +1,4 @@
 'use strict'
-/*
- * Create a list that holds all of your cards
- */
-
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
-// Shuffle function from http://stackoverflow.com/a/2450976
 
 // Registra movimentos do jogador
 const moves = document.getElementsByClassName('moves');
@@ -36,9 +23,15 @@ const cartas = document.getElementsByClassName('card');
 var initialSet = ["fa-diamond", "fa-paper-plane-o", "fa-anchor", "fa-bolt", "fa-cube", "fa-leaf", "fa-bicycle", "fa-bomb"];
 var cards = [...initialSet, ...initialSet]
 var openedCards = [];
-
+var elapsedTime = document.getElementsByClassName('time');
 // Controla os cliques nas cartas
 var holdCards = false;
+// Registra o tempo de jogo
+var message = "";
+// Registra tempo inicial
+var timeStart = "";
+//Contador
+var startTimer = "";
 
 // Função para embaralhar as cartas
 function shuffle(array) {
@@ -55,6 +48,21 @@ function shuffle(array) {
     return array;
 }
 
+
+function stopTime() {
+    clearInterval(startTimer);
+}
+
+function elapsedTimeFnc() {
+        var elapsed = (Date.now() - timeStart) / 1000;
+        const diff = {};
+        diff.seconds = Math.floor(elapsed % 60);
+        diff.minutes = Math.floor(elapsed / 60 % 60);
+        diff.hours   = Math.floor(elapsed / 3600 % 24);
+        message = `em ${diff.hours}h ${diff.minutes}m ${diff.seconds}s.`;
+        elapsedTime[0].innerHTML = message;
+};
+
 // Embaralha cartas e as adiciona ao html
 function init() {
     cards = shuffle(cards);
@@ -65,12 +73,16 @@ function init() {
     }
     time = Date.now();
     openedCards = [];
+    lastClick = null;
+    message = `em 0h 0m 0s.`;
+    elapsedTime[0].innerHTML = message;
+    timeStart = Date.now();
+    startTimer = setInterval(elapsedTimeFnc, 1000);
 }
 
 // Função que adiciona carta aberta no jogo em um array
 function addCard(card) {
-    //openedCards.push(card)
-    
+
     var teste;
     var finish;
     if (openedCards.length != 0) {
@@ -83,7 +95,7 @@ function addCard(card) {
                 timeFinish = Date.now();
                 secondsFinish = String(parseInt((parseInt(timeFinish) - parseInt(time))/1000)); 
                 setTimeout(function() {
-                alert("Parabéns, você concluíu o jogo em " + moves[0].innerHTML + " jogadas. Você conquistou a categoria " + category + " estrela(s) em " + secondsFinish + " segundos.");
+                alert("Parabéns, você concluíu o jogo em " + moves[0].innerHTML + " jogadas. Você conquistou a categoria " + category + " estrela(s) " + message);
             }, 1000)
             }
         } else {
@@ -195,18 +207,8 @@ restart[0].addEventListener("click", function() {
     }
     stars[0].innerHTML = ''
     moves[0].innerHTML = 0;
+    stopTime();
     init();
 });
 
-
 init();
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
